@@ -216,3 +216,11 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# Data
+data/raw/images/*
+data/raw/depth/*
+data/raw/semantic/*
+logs/
+checkpoints/
+*.mat

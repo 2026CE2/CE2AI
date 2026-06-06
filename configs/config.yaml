@@ -1,0 +1,46 @@
+# ============================================================
+# Configuration for 3D Scene Prediction with Transformers
+# ============================================================
+
+# --- Data ---
+data:
+  root_dir: "data/raw"
+  image_size: 224            # Input image will be resized to image_size x image_size
+  patch_size: 16             # ViT-style patch size (image_size must be divisible)
+  batch_size: 16
+  val_split: 0.15
+  test_split: 0.10
+  num_workers: 4
+  seed: 42
+
+# --- Model ---
+model:
+  d_model: 512               # Embedding dimensionality (d_m in the paper)
+  num_heads: 8               # Attention heads  (h = 8, d_k = d_v = 512/8 = 64)
+  num_enc_layers: 6          # Encoder stack depth (N = 6)
+  num_dec_layers: 6          # Decoder stack depth (N = 6)
+  d_ff: 2048                 # Feed-forward hidden size (4 * d_model)
+  num_queries: 100           # Number of decoder query tokens (output entities)
+  num_classes: 894           # NYU Depth V2: 894 classes, 0-indexed after shift
+  dropout: 0.1
+
+# --- Training ---
+training:
+  num_epochs: 100
+  learning_rate: 1.0         # Noam schedule requires base_lr=1.0; the scheduler
+                             # formula already encodes the absolute learning rate
+  weight_decay: 1.0e-2       # AdamW weight decay
+  warmup_steps: 4000         # Noam warm-up steps
+  early_stopping_patience: 15
+  checkpoint_dir: "checkpoints"
+
+# --- Loss weights ---
+loss:
+  lambda_depth: 1.0
+  lambda_semantic: 1.0
+  lambda_position: 0.5
+
+# --- Evaluation ---
+evaluation:
+  metrics: ["abs_rel", "rmse", "delta_1", "miou", "accuracy", "med"]
+  results_dir: "results"
