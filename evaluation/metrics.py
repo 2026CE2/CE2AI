@@ -90,7 +90,17 @@ def semantic_metrics(
     Returns:
         dict with keys 'accuracy' and 'miou'.
     """
+    B, Q, C = pred_logits.shape
     pred = pred_logits.argmax(dim=-1)  # (batch, num_queries)
+
+    # Downsample full-resolution mask (batch, H, W) to (batch, num_queries)
+    if target.dim() == 3 and target.shape[1:] != pred.shape[1:]:
+        side = int(Q ** 0.5)
+        target = F.interpolate(
+            target.unsqueeze(1).float(),   # (batch, 1, H, W)
+            size=(side, side),
+            mode="nearest",
+        ).long().view(B, -1)              # (batch, num_queries)
 
     mask = target != ignore_index
     correct = (pred[mask] == target[mask]).float().sum().item()

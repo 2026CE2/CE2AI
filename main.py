@@ -115,6 +115,7 @@ def evaluate(model: ScenePredictor, test_loader, cfg: dict, device: torch.device
                 preds["semantic"].cpu(),
                 batch["semantic"],
                 num_classes=cfg["model"]["num_classes"],
+                ignore_index=-1,
             )
             all_sem_metrics.append(sm)
 
