@@ -135,8 +135,12 @@ def evaluate(model: ScenePredictor, test_loader, cfg: dict, device: torch.device
     print(f"  mIoU   : {_avg(all_sem_metrics, 'miou'):.4f}")
     print(f"  Acc    : {_avg(all_sem_metrics, 'accuracy'):.4f}")
 
-    print("--- 3-D Position ---")
-    print(f"  MED    : {_avg(all_pos_metrics, 'med'):.4f}")
+    if all_pos_metrics:
+        print("--- 3-D Position ---")
+        print(f"  MED    : {_avg(all_pos_metrics, 'med'):.4f}")
+    else:
+        print("--- 3-D Position ---")
+        print("  MED    : n/a (no ground-truth poses in dataset)")
 
 
 def main():
