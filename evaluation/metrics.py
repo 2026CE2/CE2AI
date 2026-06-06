@@ -32,13 +32,28 @@ def depth_metrics(
 
     Args:
         pred   : (batch, N, 1) or (batch, N) predicted depth.
-        target : same shape, ground-truth depth.
+        target : (batch, N, 1), (batch, N), or (batch, H, W) ground-truth depth.
+                 Full-resolution spatial maps are downsampled to match pred.
 
     Returns:
         dict with keys 'abs_rel', 'rmse', 'delta_1'.
     """
-    pred = pred.squeeze(-1).float()
-    target = target.squeeze(-1).float()
+    pred = pred.squeeze(-1).float()      # (batch, N)
+    target = target.float()
+
+    # Align full-resolution spatial target (batch, H, W) to (batch, N)
+    if target.dim() == 3 and target.shape[1:] != pred.shape[1:]:
+        num_patches = pred.size(1)
+        side = int(num_patches ** 0.5)
+        target = F.interpolate(
+            target.unsqueeze(1),          # (batch, 1, H, W)
+            size=(side, side),
+            mode="bilinear",
+            align_corners=False,
+        ).squeeze(1)                      # (batch, side*side)
+        target = target.view(target.size(0), -1)  # (batch, N)
+
+    target = target.squeeze(-1)
 
     mask = target > 0
     pred_m = pred[mask]
